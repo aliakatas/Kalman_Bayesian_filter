@@ -29,6 +29,13 @@ if __name__ == '__main__':
 
     # Perform an initial training of the model
     bs.trainMe(obs_train, model_train)
+
+    for ij in range(len(obs_dyn)):
+        # Provide a correction to the forecast
+        #fcst[ij] = ###kf.adjust_forecast(model_dyn[ij])
+
+        # Update system
+        bs.trainMe([obs_dyn[ij]], [model_dyn[ij]])
     
 
 

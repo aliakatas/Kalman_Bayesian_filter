@@ -7,6 +7,7 @@ combination with the Kalman filter.
 import numpy as np
 from scipy import stats
 import scipy.integrate as integrate
+import scipy.stats as stats
 
 def lognormalIntegralNumerator(x, model, varErr, mu, sigma):
     """
@@ -25,6 +26,33 @@ def lognormalIntegralDenominator(x, model, varErr, mu, sigma):
     a1 = ((model - x) ** 2) / (2. * varErr ** 2)
     b1 = ((np.log(x) - mu) ** 2) / (2 * sigma ** 2)
     return np.exp(-a1 - b1) / x
+
+def findBestDistribution(data):
+    """
+    Perform some tests to determine the distribution
+    that best fits the data.
+    """
+    dist_names = ["norm", "lognorm", "weibull_max", "weibull_min"]
+    dist_results = []
+    params = {}
+    for dist_name in dist_names:
+        dist = getattr(stats, dist_name)
+        param = dist.fit(data)
+
+        params[dist_name] = param
+        # Applying the Kolmogorov-Smirnov test
+        D, p = stats.kstest(data, dist_name, args=param)
+        print("p value for "+dist_name+" = "+str(p))
+        dist_results.append((dist_name, p))
+
+    # select the best fitted distribution
+    best_dist, best_p = (max(dist_results, key=lambda item: item[1]))
+    # store the name of the best fit and its p value
+
+    print("Best fitting distribution: "+str(best_dist))
+    print("Best p value: "+ str(best_p))
+    print("Parameters for the best fit: "+ str(params[best_dist]))
+    return best_dist, best_p, params[best_dist]
 
 class Bayes:
     def __init__(self, history):
