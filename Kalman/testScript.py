@@ -20,7 +20,7 @@ if __name__ == '__main__':
     # Create an instance of the filter
     kf = Kalman(history, order)
     
-    # Use the first 7 of them for training
+    # Use the first #history of them for training
     obs_train = obs[:history]
     model_train = model[:history]
 
