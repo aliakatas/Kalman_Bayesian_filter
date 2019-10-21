@@ -10,16 +10,18 @@ class Kalman:
     def __init__(self, history, dim, F = None, P = None, exp_var = None):
         
         if history < 1 or dim < 1:
+            print('Kalman module reporting: ')
             raise ValueError('Improper value entered for history length and/or dimension of observation matrix...')
             
         if dim < 2:
+            print('Kalman module reporting: ')
             print('Caution! Low accuracy due to the size of the observation matrix.')
 
         # Set the bare minimum info
         self.history = history
         self.dim = dim
-        self.sq_shape = (dim, dim)
-        self.vec_shape = (dim, 1)
+        self.sqShape = (dim, dim)
+        self.vecShape = (dim, 1)
         self.nTrained = 0
 
         # Set the system matrix based on entries
@@ -39,9 +41,9 @@ class Kalman:
         # Most likely, it's not going to be used right away, but planning ahead
 
         # Initialise other relevant matrices
-        self.X = np.zeros(self.vec_shape)    # State vector
-        self.H = np.zeros(self.vec_shape)    # Observations matrix
-        self.KG = np.zeros(self.vec_shape)   # Kalman gain 
+        self.X = np.zeros(self.vecShape)    # State vector
+        self.H = np.zeros(self.vecShape)    # Observations matrix
+        self.KG = np.zeros(self.vecShape)   # Kalman gain 
 
         # Create variables to keep history data
         self.x_history = np.zeros((self.dim, self.history + 1))
@@ -57,21 +59,23 @@ class Kalman:
             if ff.shape[0] == self.dim:
                 self.F = np.array(ff)
             else:
+                print('Kalman module reporting: ')
                 raise ValueError('Transition (system) matrix F has the wrong dimensions.')
         return
 
     def set_covariance_matrix(self, pp):
         # Get the covariance matrix
         if pp is None:
-            self.P = 10.0 * np.ones(self.sq_shape)
+            self.P = 10.0 * np.ones(self.sqShape)
         else:
             if isinstance(pp, list):
                 if pp.shape[0] == self.dim:
                     self.P = np.array(pp)
                 else:
+                    print('Kalman module reporting: ')
                     raise ValueError('Covariance matrix P has the wrong dimensions.')
             else:
-                self.P = pp * np.ones(self.sq_shape)
+                self.P = pp * np.ones(self.sqShape)
         return 
     
     def set_observations_matrix(self, val):
@@ -180,7 +184,7 @@ class Kalman:
         self.update_y_history(y)
         return 
 
-    def train_me(self, obs, model, showProrgess = False):
+    def trainMe(self, obs, model, showProrgess = False):
         """
         Master method to control the initial 
         training of the filter.
@@ -191,9 +195,13 @@ class Kalman:
         
         # Check if the dimensions match
         if myobs.shape != mymodel.shape:
+            print('Kalman module reporting: ')
             raise TypeError('Initial training set does not have conforming shapes.')
         
         NN = len(myobs)
+        if NN > self.history:
+            print('Kalman module reporting: ')
+            print('WARNING: Dimensions of training set exceeds length of history database.')
 
         # Train it using all the available data
         for ih in range(NN):
@@ -211,11 +219,11 @@ class Kalman:
             self.update(y)
 
             if showProrgess:
-                self.dump_members()
+                self.dumpMembers()
                 print('************************************ \n')
         return
 
-    def adjust_forecast(self, val, buff = 20.0):
+    def adjustForecast(self, val, buff = 20.0):
         """
         Method to provide an adjustment to 
         the forecast value based on current
@@ -230,7 +238,7 @@ class Kalman:
             ret = val
         return ret
 
-    def dump_members(self):
+    def dumpMembers(self):
         """
         Defining the "print" method for 
         debugging and informative purposes.

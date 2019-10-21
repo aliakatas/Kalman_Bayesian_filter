@@ -3,8 +3,7 @@ from scipy.stats import weibull_min, lognorm
 from Bayes import Bayes
 from matplotlib import pyplot as plt
 
-#testDists = ['norm', 'weibull_min', 'lognorm']
-testDists = ['lognorm']
+testDists = ['norm', 'weibull_min', 'lognorm']
 
 def testNormal(hLen, totN, figSize, pltRange):
     """
@@ -32,7 +31,7 @@ def testNormal(hLen, totN, figSize, pltRange):
 
     for ij in range(len(obsDyn)):
         # Provide a correction to the forecast
-        fcst[ij] = bs.adjust_forecast(modelDyn[ij])
+        fcst[ij] = bs.adjustForecast(modelDyn[ij])
 
         # Update system
         bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
@@ -40,7 +39,7 @@ def testNormal(hLen, totN, figSize, pltRange):
     # Show evidence! 
     plt.figure(figsize = figSize)
     plt.plot(obsDyn[pltRange], label='obs')
-    plt.plot(modelDyn[pltRange], label='model')
+    plt.plot(modelDyn[pltRange], '--', label='model')
     plt.plot(fcst[pltRange], '*', label='Bayes')
     plt.title('Normal Dist Data')
     plt.legend()
@@ -73,7 +72,7 @@ def testWeibull(hLen, totN, figSize, pltRange):
 
     for ij in range(len(obsDyn)):
         # Provide a correction to the forecast
-        fcst[ij] = bs.adjust_forecast(modelDyn[ij])
+        fcst[ij] = bs.adjustForecast(modelDyn[ij])
 
         # Update system
         bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
@@ -81,7 +80,7 @@ def testWeibull(hLen, totN, figSize, pltRange):
     # Show evidence! 
     plt.figure(figsize = figSize)
     plt.plot(obsDyn[pltRange], label='obs')
-    plt.plot(modelDyn[pltRange], label='model')
+    plt.plot(modelDyn[pltRange], '--', label='model')
     plt.plot(fcst[pltRange], '*', label='Bayes')
     plt.title('Weibull Dist Data')
     plt.legend()
@@ -114,17 +113,17 @@ def testLognormal(hLen, totN, figSize, pltRange):
 
     for ij in range(len(obsDyn)):
         # Provide a correction to the forecast
-        fcst[ij] = bs.adjust_forecast(modelDyn[ij])
+        fcst[ij] = bs.adjustForecast(modelDyn[ij])
 
         # Update system
-        bs.trainMe([obsDyn[ij]], [modelDyn[ij]], True)
+        bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
 
     # Show evidence! 
     plt.figure(figsize = figSize)
     plt.plot(obsDyn[pltRange], label='obs')
-    plt.plot(modelDyn[pltRange], label='model')
+    plt.plot(modelDyn[pltRange], '--', label='model')
     plt.plot(fcst[pltRange], '*', label='Bayes')
-    plt.title('Weibull Dist Data')
+    plt.title('Lognormal Dist Data')
     plt.legend()
     plt.show()
     return

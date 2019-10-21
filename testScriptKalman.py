@@ -1,3 +1,7 @@
+"""
+Testing Kalman filter for randomly generated data.
+"""
+
 import numpy as np
 from Kalman import Kalman
 from matplotlib import pyplot as plt
@@ -7,15 +11,23 @@ if __name__ == '__main__':
     # Define some generic values
     history = 7
     order = 2
+    totNum = 2000
+    obsMean = 15.4
+    obsVar = 2.3
+    modBias = 2.5
+    modVar = 0.5
 
-    # Create some imaginary data
-    obs = np.random.normal(15.4, 2.3, size = 2000)
-    model = obs + np.random.normal(2.5, 0.5, size = len(obs))
-
-    # Define the plot range and size of the figure
-    pltRange = range(1000, 1045)
+    pltStart = 1000
+    pltNum = 45
     figSize = (11,9)
 
+    # Create some imaginary data
+    obs = np.random.normal(obsMean, obsVar, size = totNum)
+    model = obs + np.random.normal(modBias, modVar, size = len(obs))
+
+    # Define the plot range and size of the figure
+    pltRange = range(pltStart, pltStart + pltNum)
+    
     # Start Testing
     # Create an instance of the filter
     kf = Kalman(history, order)
@@ -30,19 +42,19 @@ if __name__ == '__main__':
     fcst = np.zeros_like(obs_dyn)
 
     # Perform an initial training of the model
-    kf.train_me(obs_train, model_train)
+    kf.trainMe(obs_train, model_train)
 
     for ij in range(len(obs_dyn)):
         # Provide a correction to the forecast
-        fcst[ij] = kf.adjust_forecast(model_dyn[ij])
+        fcst[ij] = kf.adjustForecast(model_dyn[ij])
 
         # Update filter
-        kf.train_me([obs_dyn[ij]], [model_dyn[ij]])
+        kf.trainMe([obs_dyn[ij]], [model_dyn[ij]])
 
     fig = plt.figure(figsize=figSize)
     plt.plot(obs_dyn[pltRange], label='obs')
-    plt.plot(model_dyn[pltRange], label='model')
-    plt.plot(fcst[pltRange], label='kalman')
+    plt.plot(model_dyn[pltRange], '--', label='model')
+    plt.plot(fcst[pltRange], '*', label='kalman')
     plt.legend()
     plt.show()
 
