@@ -1,10 +1,10 @@
 import numpy as np
-from scipy.stats import weibull_min
+from scipy.stats import weibull_min, lognorm
 from Bayes import Bayes
 from matplotlib import pyplot as plt
 
 #testDists = ['norm', 'weibull_min', 'lognorm']
-testDists = ['weibull_min']
+testDists = ['lognorm']
 
 def testNormal(hLen, totN, figSize, pltRange):
     """
@@ -37,6 +37,7 @@ def testNormal(hLen, totN, figSize, pltRange):
         # Update system
         bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
     
+    # Show evidence! 
     plt.figure(figsize = figSize)
     plt.plot(obsDyn[pltRange], label='obs')
     plt.plot(modelDyn[pltRange], label='model')
@@ -77,6 +78,7 @@ def testWeibull(hLen, totN, figSize, pltRange):
         # Update system
         bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
 
+    # Show evidence! 
     plt.figure(figsize = figSize)
     plt.plot(obsDyn[pltRange], label='obs')
     plt.plot(modelDyn[pltRange], label='model')
@@ -86,11 +88,46 @@ def testWeibull(hLen, totN, figSize, pltRange):
     plt.show()
     return
 
-def testLognormal():
+def testLognormal(hLen, totN, figSize, pltRange):
     """
     Brief test with data following lognormal distribution.
     """
-    pass
+    # Create some imaginary data
+    obs = lognorm.rvs(s = 0.94, scale = 1.9, size = totN)      
+    model = obs + np.random.normal(0.0, 2.5, size = len(obs))
+
+    # Start Testing
+    # Create an instance of the object
+    bs = Bayes(hLen, distType = 'lognorm')
+
+    # Use the first #hLen of them for training
+    obsTrain = obs[:hLen]
+    modelTrain = model[:hLen]
+
+    # The rest to be used dynamically
+    obsDyn = obs[hLen:]
+    modelDyn = model[hLen:]
+    fcst = np.zeros_like(obsDyn)
+
+    # Perform an initial training of the model
+    bs.trainMe(obsTrain, modelTrain)
+
+    for ij in range(len(obsDyn)):
+        # Provide a correction to the forecast
+        fcst[ij] = bs.adjust_forecast(modelDyn[ij])
+
+        # Update system
+        bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
+
+    # Show evidence! 
+    plt.figure(figsize = figSize)
+    plt.plot(obsDyn[pltRange], label='obs')
+    plt.plot(modelDyn[pltRange], label='model')
+    plt.plot(fcst[pltRange], '*', label='Bayes')
+    plt.title('Weibull Dist Data')
+    plt.legend()
+    plt.show()
+    return
 
 if __name__ == '__main__':
 
@@ -115,7 +152,7 @@ if __name__ == '__main__':
             print('\n ***** Weibull Distribution data testing  END ***** ')
         elif item.lower() == 'lognorm':
             print('\n *****   Lognormal Distribution data testing    ***** ')
-            testLognormal()
+            testLognormal(history, totalNum, figSize, pltRange)
             print('\n ***** Lognormal Distribution data testing  END ***** ')
         else:
             raise TypeError('Unknown distribution used for testing...')

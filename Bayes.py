@@ -156,7 +156,7 @@ class Bayes:
 
         # Update the maximum data value (estimate)
         mx = max(myObs)
-        self.maxData = max([self.maxData, 10.0 * mx])
+        self.maxData = max([self.maxData, 2.5 * mx])
             
     def updateHistory(self, obs, model):
         """
