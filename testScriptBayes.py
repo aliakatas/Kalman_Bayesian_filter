@@ -117,7 +117,7 @@ def testLognormal(hLen, totN, figSize, pltRange):
         fcst[ij] = bs.adjust_forecast(modelDyn[ij])
 
         # Update system
-        bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
+        bs.trainMe([obsDyn[ij]], [modelDyn[ij]], True)
 
     # Show evidence! 
     plt.figure(figsize = figSize)

@@ -139,12 +139,18 @@ class Bayes:
 
         # Check if the user would like to find best fit each time...
         if retarget:
-           self.correctionType == 'none'
+           self.correctionType = 'none'
 
         # Check what distribution we are dealing with
         if self.correctionType == 'none':
             # Must detect it...
-            findBestDistribution(myObs)
+            best_dist, best_p, params = findBestDistribution(myObs)
+
+            print('*******************')
+            print(best_dist)
+            print(best_p)
+            print(params)
+            print('*******************')
         
         # Perform update of coefficients
         if self.correctionType == 'norm':
