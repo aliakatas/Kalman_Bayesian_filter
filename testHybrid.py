@@ -1,4 +1,5 @@
 import numpy as np
+from matplotlib import pyplot as plt
 from Kalman import Kalman
 from Bayes import Bayes
 
@@ -19,19 +20,36 @@ if __name__ == '__main__':
 
     # Start Testing
     # Create an instance of the hybrid system
-    kf = Kalman.(history, order)
-    bs = Bayes.(history, distType='norm')
+    kf = Kalman(history, order)
+    bs = Bayes(history, distType='norm')
     
     # Use the first #history of them for training
-    obs_train = obs[:history]
-    model_train = model[:history]
+    obsTrain = obs[:history]
+    modelTrain = model[:history]
 
     # The rest to be used dynamically
-    obs_dyn = obs[history:]
-    model_dyn = model[history:]
-    fcst = np.zeros_like(obs_dyn)
+    obsDyn = obs[history:]
+    modelDyn = model[history:]
+    fcst = np.zeros_like(obsDyn)
 
     # Perform an initial training of the model
-    kf.train_me(obs_train, model_train)
+    kf.train_me(obsTrain, modelTrain)
+    bs.trainMe(obsTrain, modelTrain)
+
+    for ij in range(len(obsDyn)):
+        # Provide a correction to the forecast
+        temp = kf.adjust_forecast(modelDyn[ij])
+        fcst[ij] = bs.adjust_forecast(temp)
+
+        # Update hybrid system
+        kf.train_me([obsDyn[ij]], [modelDyn[ij]])
+        bs.trainMe([obsDyn[ij]], [modelDyn[ij]])
+
+    fig = plt.figure(figsize=figSize)
+    plt.plot(obsDyn[pltRange], label='obs')
+    plt.plot(modelDyn[pltRange], label='model')
+    plt.plot(fcst[pltRange], '*', label='hybrid')
+    plt.legend()
+    plt.show()
 
     print('Test ended.')
